@@ -1,0 +1,18 @@
+<section class="row">
+  <article class="column">
+    <h2>Events</h2>
+    <ul class="events-list>
+      <%= for event <- @events do %>
+        <li>
+          <div class="card">
+            <img class="card-img-top" src="/images/bring-me-the-horizon.jpg">
+            <div class="card-body">
+              <h5 class="card-title"><%= event.title %></h5>
+              <%= button("Book Now", to: Routes.ticket_path(@conn, :create, event_id: event.id), method: "post", class: "btn btn-primary") %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </article>
+</section>

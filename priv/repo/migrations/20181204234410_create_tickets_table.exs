@@ -5,7 +5,8 @@ defmodule StripeBook.Repo.Migrations.CreateTicketsTable do
     create table(:tickets) do
       add :email, :string, null: false
       add :event_id, references(:events), null: false
-      add :price_pennies, :integer
+      add :amount_pennies, :integer
+      add :currency, :string, size: 3
       add :state, :string, default: "created"
       add :paid_at, :utc_datetime
 

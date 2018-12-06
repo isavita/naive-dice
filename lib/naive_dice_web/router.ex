@@ -16,7 +16,9 @@ defmodule NaiveDiceWeb.Router do
   scope "/", NaiveDiceWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", EventController, :index
+    resources "events", EventController, only: [:index, :show]
+    resources "tickets", TicketController, only: [:create]
   end
 
   # Other scopes may use custom stacks.

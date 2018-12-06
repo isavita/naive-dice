@@ -2,10 +2,14 @@
 #
 #     mix run priv/repo/seeds.exs
 #
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     NaiveDice.Repo.insert!(%NaiveDice.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+
+new_year_eve = 
+  %DateTime{year: 2018, month: 12, day: 31, zone_abbr: "UTC",
+            hour: 21, minute: 0, second: 0, microsecond: {0, 0},
+            utc_offset: 0, std_offset: 0, time_zone: "Etc/UTC"}
+
+NaiveDice.Repo.insert!(%NaiveDice.Bookings.Event{
+  title: "Alexandra Palace: Bring Me The Horizon",
+  description: "Sheffield emo legends Bring Me The Horizon are your headliner. Don't miss this.",
+  starts_at: new_year_eve 
+})
