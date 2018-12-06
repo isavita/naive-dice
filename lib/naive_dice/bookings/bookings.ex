@@ -1,13 +1,13 @@
 defmodule NaiveDice.Bookings do
   @moduledoc """
-  The Bookings context which combines Event and Ticket repos.
+  The Bookings context which combines Event, TicketSchema, and Ticket repos.
   """
 
   import Ecto.Query, warn: false
   alias NaiveDice.Repo
   alias NaiveDice.Bookings.Event
+  alias NaiveDice.Bookings.TicketSchema
   alias NaiveDice.Bookings.Ticket
-  alias NaiveDice.Bookings.Customer
 
 
   @doc """
@@ -31,6 +31,15 @@ defmodule NaiveDice.Bookings do
   """
   def list_tickets(event_id) do
     Repo.all(Ticket)
+  end
+
+  @doc """
+  Creates a ticket schema.
+  """
+  def create_ticket_schema(attrs) do
+    %TicketSchema{}
+    |> TicketSchema.changeset(attrs)
+    |> Repo.insert()
   end
 
   @doc """

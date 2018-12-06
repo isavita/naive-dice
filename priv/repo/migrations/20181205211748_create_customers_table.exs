@@ -1,4 +1,4 @@
-defmodule NaiveDice.Repo.Migrations.CreateCustomers do
+defmodule NaiveDice.Repo.Migrations.CreateCustomersTable do
   use Ecto.Migration
 
   def change do

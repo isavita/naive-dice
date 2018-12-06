@@ -3,8 +3,9 @@ defmodule StripeBook.Repo.Migrations.CreateTicketsTable do
 
   def change do
     create table(:tickets) do
-      add :email, :string, null: false
+      add :user_id, references(:users), null: false
       add :event_id, references(:events), null: false
+      add :ticket_schema_id, references(:ticket_schemas), null: false
       add :amount_pennies, :integer
       add :currency, :string, size: 3
       add :state, :string, default: "created"
@@ -13,6 +14,8 @@ defmodule StripeBook.Repo.Migrations.CreateTicketsTable do
       timestamps()
     end
 
-    create unique_index(:tickets, [:email])
+    create index(:tickets, [:user_id])
+    create index(:tickets, [:event_id])
+    create index(:tickets, [:ticket_schema_id])
   end
 end

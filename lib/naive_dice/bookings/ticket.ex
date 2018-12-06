@@ -1,14 +1,18 @@
 defmodule NaiveDice.Bookings.Ticket do
   use Ecto.Schema
   import Ecto.Changeset
+  alias NaiveDice.User
   alias NaiveDice.Bookings.Event
+  alias NaiveDice.Bookings.TicketSchema
 
   schema "tickets" do
-    field :email, :string
     field :amount_pennies, :integer
     field :state, :string
     field :paid_at, :utc_datetime
+
+    belongs_to :user, User
     belongs_to :event, Event
+    belongs_to :ticket_schema, TicketSchema
 
     timestamps()
   end
@@ -16,7 +20,7 @@ defmodule NaiveDice.Bookings.Ticket do
   @doc false
   def changeset(ticket, attrs) do
     ticket
-    |> cast(attrs, [:email, :event_id, :amount_pennies, :state, :paid_at])
-    |> validate_required([:email, :event_id])
+    |> cast(attrs, [:event_id, :user_id, :ticket_schema_id, :amount_pennies, :state, :paid_at])
+    |> validate_required([:event_id, :user_id, :ticket_schema_id])
   end
 end

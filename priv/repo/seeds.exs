@@ -8,8 +8,13 @@ new_year_eve =
             hour: 21, minute: 0, second: 0, microsecond: {0, 0},
             utc_offset: 0, std_offset: 0, time_zone: "Etc/UTC"}
 
-NaiveDice.Repo.insert!(%NaiveDice.Bookings.Event{
+event = NaiveDice.Repo.insert!(%NaiveDice.Bookings.Event{
   title: "Alexandra Palace: Bring Me The Horizon",
   description: "Sheffield emo legends Bring Me The Horizon are your headliner. Don't miss this.",
   starts_at: new_year_eve 
+})
+
+NaiveDice.Repo.insert!(%NaiveDice.Bookings.TicketSchema{
+  amount_pennies: 1000,
+  currency: "gbp"
 })
