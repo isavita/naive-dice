@@ -28,6 +28,9 @@ config :phoenix, :json_library, Jason
 # Configures Stripe API secret key
 config :stripity_stripe, api_key: System.get_env("STRIPE_API_SECRET_KEY")
 
+# Configures Doorman for simple login
+config :doorman, repo: NaiveDice.Repo, secure_with: Doorman.Auth.Bcrypt, user_module: NaiveDice.User
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

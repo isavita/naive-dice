@@ -7,6 +7,7 @@ defmodule NaiveDiceWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug Doorman.Login.Session
   end
 
   pipeline :api do
@@ -17,12 +18,10 @@ defmodule NaiveDiceWeb.Router do
     pipe_through :browser
 
     get "/", EventController, :index
+    get "/login", SessionController, :new
     resources "events", EventController, only: [:index, :show]
     resources "tickets", TicketController, only: [:create]
+    resources "users", UserController, only: [:new, :create]
+    resources "sessions", SessionController, only: [:create]
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", NaiveDiceWeb do
-  #   pipe_through :api
-  # end
 end
