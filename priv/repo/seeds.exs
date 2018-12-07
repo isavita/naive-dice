@@ -3,6 +3,7 @@
 #     mix run priv/repo/seeds.exs
 #
 
+
 new_year_eve = 
   %DateTime{year: 2018, month: 12, day: 31, zone_abbr: "UTC",
             hour: 21, minute: 0, second: 0, microsecond: {0, 0},
@@ -15,6 +16,8 @@ event = NaiveDice.Repo.insert!(%NaiveDice.Bookings.Event{
 })
 
 NaiveDice.Repo.insert!(%NaiveDice.Bookings.TicketSchema{
+  event_id: event.id,
   amount_pennies: 1000,
-  currency: "gbp"
+  currency: "gbp",
+  available_tickets_count: 5
 })

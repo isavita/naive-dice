@@ -10,18 +10,28 @@ defmodule NaiveDiceWeb.Router do
     plug Doorman.Login.Session
   end
 
+  pipeline :authentication do
+    plug NaiveDiceWeb.Plugs.RequireLogin
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
 
+
   scope "/", NaiveDiceWeb do
     pipe_through :browser
 
-    get "/", EventController, :index
     get "/login", SessionController, :new
+    resources "sessions", SessionController, only: [:create]
+    resources "users", UserController, only: [:new, :create]
+  end
+
+  scope "/", NaiveDiceWeb do
+    pipe_through [:browser, :authentication]
+  
+    get "/", EventController, :index
     resources "events", EventController, only: [:index, :show]
     resources "tickets", TicketController, only: [:create]
-    resources "users", UserController, only: [:new, :create]
-    resources "sessions", SessionController, only: [:create]
   end
 end

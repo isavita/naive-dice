@@ -7,6 +7,7 @@ defmodule NaiveDice.Bookings.Ticket do
 
   schema "tickets" do
     field :amount_pennies, :integer
+    field :currency, :string
     field :state, :string
     field :paid_at, :utc_datetime
 
@@ -20,7 +21,7 @@ defmodule NaiveDice.Bookings.Ticket do
   @doc false
   def changeset(ticket, attrs) do
     ticket
-    |> cast(attrs, [:event_id, :user_id, :ticket_schema_id, :amount_pennies, :state, :paid_at])
+    |> cast(attrs, [:event_id, :user_id, :ticket_schema_id, :amount_pennies, :currency, :state, :paid_at])
     |> validate_required([:event_id, :user_id, :ticket_schema_id])
   end
 end

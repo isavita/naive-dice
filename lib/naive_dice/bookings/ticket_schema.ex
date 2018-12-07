@@ -5,12 +5,13 @@ defmodule NaiveDice.Bookings.TicketSchema do
   alias NaiveDice.Bookings.Ticket
 
 
-  schema "ticket_schema" do
+  schema "ticket_schemas" do
     field :amount_pennies, :integer
     field :currency, :string
     field :type, :string
+    field :available_tickets_count, :integer
 
-    belongs_to :event, Event
+    belongs_to :event, Event, foreign_key: :event_id
     has_many :tickets, Ticket
 
     timestamps()
@@ -19,7 +20,7 @@ defmodule NaiveDice.Bookings.TicketSchema do
   @doc false
   def changeset(ticket_schema, attrs) do
     ticket_schema
-    |> cast(attrs, [:amount_pennies, :currency, :event_id, :type])
-    |> validate_required([:event_id])
+    |> cast(attrs, [:event_id, :amount_pennies, :currency, :type, :available_tickets_count])
+    |> validate_required([:event_id, :available_tickets_count])
   end
 end

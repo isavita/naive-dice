@@ -10,5 +10,7 @@ defmodule StripeBook.Repo.Migrations.CreateEventsTable do
 
       timestamps()
     end
+
+    create unique_index(:events, [:title, :starts_at])
   end
 end

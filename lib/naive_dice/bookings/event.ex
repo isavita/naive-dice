@@ -2,6 +2,7 @@ defmodule NaiveDice.Bookings.Event do
   use Ecto.Schema
   import Ecto.Changeset
   alias NaiveDice.Bookings.Ticket
+  alias NaiveDice.Bookings.TicketSchema
 
   schema "events" do
     field :title, :string
@@ -9,6 +10,7 @@ defmodule NaiveDice.Bookings.Event do
     field :starts_at, :utc_datetime
     field :ends_at, :utc_datetime
     has_many :tickets, Ticket
+    has_one :ticket_schema, TicketSchema
 
     timestamps()
   end

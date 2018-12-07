@@ -9,12 +9,13 @@ defmodule NaiveDice.Bookings do
   alias NaiveDice.Bookings.TicketSchema
   alias NaiveDice.Bookings.Ticket
 
+  require IEx
 
   @doc """
   Returns all events in the system.
   """
-  def list_events do
-    Repo.all(Event)
+  def list_events(limit \\ 10) do
+    Repo.all(from e in Event, limit: ^limit, preload: [:ticket_schema])
   end
 
   @doc """
@@ -45,9 +46,16 @@ defmodule NaiveDice.Bookings do
   @doc """
   Creates a ticket.
   """
-  def create_ticket(attrs) do
+  def create_ticket(event, ticket_schema, attrs) do
     %Ticket{}
-    |> Ticket.changeset(attrs)
+    |> Ticket.changeset(Map.merge(attrs, extra_attrs(event, ticket_schema)))
     |> Repo.insert()
+  end
+
+  defp extra_attrs(event, ticket_schema) do
+    %{"event_id" => event.id,
+      "ticket_schema_id" => ticket_schema.id,
+      "amount_pennies" => ticket_schema.amount_pennies,
+      "currency" => ticket_schema.currency}
   end
 end
