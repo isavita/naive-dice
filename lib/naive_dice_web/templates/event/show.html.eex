@@ -5,19 +5,14 @@
       <div class="card-body">
         <h5 class="card-title"><%= @event.title %></h5>
         <p class="card-text">Description: <%= @event.description %></p>
-        <form action="<%= Routes.ticket_path(@conn, :create, event_id: @event.id) %>" method="POST">
-          <input type="hidden" value="<%= @csrf_token %>" name="_csrf_token"/>
-          <script
-            src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-            data-key=<%= @stripe_api_key %>
-            data-amount="999"
-            data-name="Demo Site"
-            data-description="Example charge"
-            data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
-            data-locale="auto"
-            data-currency="gbp">
-          </script>
-        </form>
+        <%= cond do %>
+        <% user_has_ticket?(@current_user, @event) -> %>
+          <%= render(NaiveDiceWeb.EventView, "_stripe_form.html", ticket: get_user_ticket(@current_user, @event), conn: @conn) %>
+        <% has_available_tickets?(@event) -> %>
+          <%= button("Book Now", to: Routes.ticket_path(@conn, :create, event_id: @event.id), method: "post", class: "btn btn-primary") %>
+        <% true -> %>
+          <span>SOLD OUT</span>
+        <% end %>
       </div>
     </div>
   </article>

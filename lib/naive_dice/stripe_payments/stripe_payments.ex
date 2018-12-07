@@ -1,29 +1,38 @@
 defmodule NaiveDice.StripePayments do
   @moduledoc """
-  The StripePayments context which is for Customer and Charge repos.
+  The StripePayments context which is for Checkout and Charge repos.
   """
 
   import Ecto.Query, warn: false
   alias NaiveDice.Repo
-  alias NaiveDice.StripePayments.Customer
+  alias NaiveDice.StripePayments.Checkout
 
   @doc """
-  Creates a customer.
+  Creates a checkout.
   """
-  def create_customer(attrs) do
-    %Customer{}
-    |> Customer.changeset(attrs)
-    |> Repo.insert()
+  def create_checkout!(attrs) do
+    %Checkout{}
+    |> Checkout.changeset(attrs)
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Updates a checkout's `processed` column to `true`.
+  """
+  def update_to_processed!(checkout) do
+    checkout
+    |> Checkout.changeset(%{"processed" => true})
+    |> Repo.update!()
   end
 
   @doc """
   Creates a stripe charge.
   """
-  def create_charge(customer, ticket) do
+  def create_charge(checkout, ticket) do
     Charge.create(%{
       amount: ticket.amount_pennies,
       currency: ticket.currency,
-      source: customer.stripe_token
+      source: checkout.token
     })
   end
 

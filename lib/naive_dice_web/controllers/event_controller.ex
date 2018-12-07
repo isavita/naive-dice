@@ -10,8 +10,7 @@ defmodule NaiveDiceWeb.EventController do
 
   def show(conn, %{"id" => id}) do
     event = Bookings.get_event!(id)
-    stripe_api_key = System.get_env("STRIPE_API_PUBLISHABLE_KEY")
 
-    render(conn, "show.html", event: event, csrf_token: get_csrf_token(), stripe_api_key: stripe_api_key)
+    render(conn, "show.html", event: event)
   end
 end

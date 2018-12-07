@@ -9,8 +9,6 @@ defmodule NaiveDice.Bookings do
   alias NaiveDice.Bookings.TicketSchema
   alias NaiveDice.Bookings.Ticket
 
-  require IEx
-
   @doc """
   Returns all events in the system.
   """
@@ -24,7 +22,7 @@ defmodule NaiveDice.Bookings do
   Raises `Ecto.NoResultsError` if the event does not exists.
   """
   def get_event!(event_id) do
-    Repo.get!(Event, event_id)
+    Repo.get!(Event, event_id) |> Repo.preload(:ticket_schema)
   end
 
   @doc """
@@ -50,6 +48,38 @@ defmodule NaiveDice.Bookings do
     %Ticket{}
     |> Ticket.changeset(Map.merge(attrs, extra_attrs(event, ticket_schema)))
     |> Repo.insert()
+  end
+
+  @doc """
+  Gets a ticket for a given user and event.
+
+  Gets nil if a ticket for a given user and event does not exist.
+  """
+  def get_user_ticket!(user, event) do
+    Repo.get_by!(Ticket, user_id: user.id, event_id: event.id)
+  end
+
+  @doc """
+  Gets ticket with the given id. 
+
+  Raises `Ecto.NoResultsError` if the ticket does not exist.
+  """
+  def get_ticket!(ticket_id) do
+    Repo.get!(Ticket, ticket_id)
+  end
+
+  @doc """
+  Returns `true` if the event has available tickets.
+  """
+  def has_available_tickets?(event) do
+    Repo.exists?(from ts in TicketSchema, where: ts.event_id == ^event.id and ts.available_tickets_count > 0)
+  end
+
+  @doc """
+  Returns `true` if an user has ticket for an event.
+  """
+  def user_has_ticket?(user, event) do
+    Repo.exists?(from t in Ticket, where: t.user_id == ^user.id and t.event_id == ^event.id)
   end
 
   defp extra_attrs(event, ticket_schema) do

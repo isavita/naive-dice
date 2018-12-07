@@ -43,21 +43,62 @@ defmodule NaiveDice.BookingsTest do
 
       assert {:ok, %Ticket{}} = Bookings.create_ticket(event, ticket_schema, attrs)
     end
+
+    test "get_user_ticket!/2 gets ticket for a given user and event" do
+      user = create_user()
+      event = create_event()
+      ticket_schema = create_ticket_schema(event)
+      ticket_attrs = Map.put(@valid_ticket_attrs, "user_id", user.id)
+      {:ok, ticket} = Bookings.create_ticket(event, ticket_schema, ticket_attrs)
+
+      assert ticket == Bookings.get_user_ticket!(user, event)
+    end
+
+    test "has_available_tickets?/1 returns true if the event has available tickets" do
+      event = create_event()
+      ticket_schema = create_ticket_schema(event)
+
+      assert Bookings.has_available_tickets?(event) == true
+    end
+
+    test "has_available_tickets?/1 returns false if the event does not have available tickets" do
+      event = create_event()
+      ticket_schema = create_ticket_schema(event, Map.put(@valid_ticket_schema_attrs, "available_tickets_count", 0))
+
+      assert Bookings.has_available_tickets?(event) == false
+    end
+
+    test "user_has_ticket?/2 returns true if the user has ticket for the event" do
+      user = create_user()
+      event = create_event()
+      ticket_schema = create_ticket_schema(event)
+      ticket_attrs = Map.put(@valid_ticket_attrs, "user_id", user.id)
+      ticket = Bookings.create_ticket(event, ticket_schema, ticket_attrs)
+
+      assert Bookings.user_has_ticket?(user, event) == true
+    end
+
+    test "user_has_ticket?/2 returns false if the user does not have ticket for the event" do
+      user = create_user()
+      event = create_event()
+
+      assert Bookings.user_has_ticket?(user, event) == false
+    end
   end
 
-  def create_user(attrs \\ @create_user_attrs) do
+  defp create_user(attrs \\ @create_user_attrs) do
     %User{}
     |> User.create_changeset(attrs)
     |> NaiveDice.Repo.insert!()
   end
 
-  def create_event(attrs \\ @create_event_attrs) do
+  defp create_event(attrs \\ @create_event_attrs) do
     %Event{}
     |> Event.changeset(attrs)
     |> NaiveDice.Repo.insert!()
   end
 
-  def create_ticket_schema(event, attrs \\ @valid_ticket_schema_attrs) do
+  defp create_ticket_schema(event, attrs \\ @valid_ticket_schema_attrs) do
     %TicketSchema{}
     |> TicketSchema.changeset(Map.put(attrs, "event_id", event.id))
     |> NaiveDice.Repo.insert!()

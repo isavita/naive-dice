@@ -1,0 +1,13 @@
+<form action="<%= Routes.stripe_payment_path(@conn, :create, ticket_id: @ticket.id) %>" method="POST">
+  <input type="hidden" value="<%= csrf_token %>" name="_csrf_token"/>
+  <script
+    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+    data-key=<%= stripe_api_key %>
+    data-amount=<%= @ticket.amount_pennies %>
+    data-name="Demo Site"
+    data-description="Example charge"
+    data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+    data-locale="auto"
+    data-currency=<%= @ticket.currency %>>
+  </script>
+</form>

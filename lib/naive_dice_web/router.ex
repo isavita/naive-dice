@@ -33,5 +33,6 @@ defmodule NaiveDiceWeb.Router do
     get "/", EventController, :index
     resources "events", EventController, only: [:index, :show]
     resources "tickets", TicketController, only: [:create]
+    resources "stripe_payments", StripePaymentController, only: [:create]
   end
 end

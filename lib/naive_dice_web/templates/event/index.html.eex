@@ -4,13 +4,19 @@
     <ul class="events-list>
       <%= for event <- @events do %>
         <li>
-          <div class="card">
-            <img class="card-img-top" src="/images/bring-me-the-horizon.jpg">
-            <div class="card-body">
-              <h5 class="card-title"><%= event.title %></h5>
-              <%= button("Book Now", to: Routes.ticket_path(@conn, :create, event_id: event.id), method: "post", class: "btn btn-primary") %>
+            <div class="card">
+              <%= link(to: Routes.event_path(@conn, :show, event.id)) do %>
+                <img class="card-img-top" src="/images/bring-me-the-horizon.jpg">
+              <% end %>
+              <div class="card-body">
+                <h5 class="card-title"><%= event.title %></h5>
+                <%= if has_available_tickets?(event) do %>
+                  <span><%= formatted_amount(event.ticket_schema) %></span>
+                <% else %>
+                  <span class="label label-primary">SOLD OUT</span>
+                <% end %>
+              </div>
             </div>
-          </div>
         </li>
       <% end %>
     </ul>
