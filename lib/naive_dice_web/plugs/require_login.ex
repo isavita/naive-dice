@@ -4,7 +4,6 @@ defmodule NaiveDiceWeb.Plugs.RequireLogin do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    IO.inspect conn
     if Doorman.logged_in?(conn) do
       conn
     else
