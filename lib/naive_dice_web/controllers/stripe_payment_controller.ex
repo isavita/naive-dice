@@ -7,18 +7,16 @@ defmodule NaiveDiceWeb.StripePaymentController do
     user = conn.assigns.current_user
     ticket = Bookings.get_ticket!(ticket_id)
 
-    checkout =
-      stripe_checkout_attrs(params, user)
-      |> StripePayments.create_checkout!()
+    # TODO: Move the whole block of code that is inside the transaction to a method
     # start transaction
-    # 2) make a call to stripe API to charge
-    # 3) update ticket to paid with DateTime.utc_now()
+    checkout = stripe_checkout_attrs(params, user) |> StripePayments.create_checkout!()
+    # TODO: Add handling of API call response {:error, ...}
+    {:ok, charge_data} = StripePayments.charge_checkout(checkout, ticket)
+    charge_info = StripePayments.create_charge_info!(checkout, charge_data)
+    # TODO: Add checks for charge_info["netwrok_status"] and different behaviour for the update of the ticket and checkout
     Bookings.update_ticket_to_paid!(ticket)
     StripePayments.update_checkout_to_processed!(checkout)
     # end transaction
-    # store the information from the call from step (2)
-    # {:ok, customer} = create_customer(params)
-    # charge = StripePayments.create_charge(customer, ticket)
 
     redirect(conn, to: Routes.event_path(conn, :show, ticket.event_id))
   end

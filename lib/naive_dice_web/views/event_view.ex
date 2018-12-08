@@ -20,6 +20,10 @@ defmodule NaiveDiceWeb.EventView do
     Bookings.user_has_ticket?(user, event) 
   end
 
+  def user_has_paid_ticket?(user, event) do
+    Bookings.user_has_ticket?(user, event, paid: true) 
+  end
+
   def get_user_ticket(user, event) do
     Bookings.get_user_ticket!(user, event)
   end

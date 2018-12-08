@@ -87,8 +87,12 @@ defmodule NaiveDice.Bookings do
   @doc """
   Returns `true` if an user has ticket for an event.
   """
-  def user_has_ticket?(user, event) do
-    Repo.exists?(from t in Ticket, where: t.user_id == ^user.id and t.event_id == ^event.id)
+  def user_has_ticket?(user, event, opts \\ []) do
+    if Keyword.get(opts, :paid) do
+      Repo.exists?(from t in Ticket, where: t.user_id == ^user.id and t.event_id == ^event.id and not is_nil(t.paid_at))
+    else
+      Repo.exists?(from t in Ticket, where: t.user_id == ^user.id and t.event_id == ^event.id)
+    end
   end
 
   defp extra_attrs(event, ticket_schema) do

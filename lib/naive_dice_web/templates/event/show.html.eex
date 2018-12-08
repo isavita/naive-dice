@@ -7,7 +7,11 @@
         <p class="card-text">Description: <%= @event.description %></p>
         <%= cond do %>
         <% user_has_ticket?(@current_user, @event) -> %>
-          <%= render(NaiveDiceWeb.EventView, "_stripe_form.html", ticket: get_user_ticket(@current_user, @event), conn: @conn) %>
+          <%= if user_has_paid_ticket?(@current_user, @event) do %>
+            <span>YOU HAVE A TICKET</span>
+          <% else %>
+            <%= render(NaiveDiceWeb.EventView, "_stripe_form.html", ticket: get_user_ticket(@current_user, @event), conn: @conn) %>
+          <% end %>
         <% has_available_tickets?(@event) -> %>
           <%= button("Book Now", to: Routes.ticket_path(@conn, :create, event_id: @event.id), method: "post", class: "btn btn-primary") %>
         <% true -> %>

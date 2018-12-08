@@ -35,7 +35,7 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
       assert get_checkout(user).processed
     end
 
-    test "updates ticket's paid_at", %{conn: conn, user: user, params: params, ticket: ticket} do
+    test "updates the ticket's paid_at to UTC time now", %{conn: conn, user: user, params: params, ticket: ticket} do
       assert is_nil(ticket.paid_at)
 
       conn |> assign(:current_user, user) |> post("/stripe_payments", params)

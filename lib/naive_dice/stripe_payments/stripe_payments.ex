@@ -1,10 +1,12 @@
 defmodule NaiveDice.StripePayments do
   @moduledoc """
-  The StripePayments context which is for Checkout and Charge repos.
+  The StripePayments context which is for Checkout and ChargeInfo repos.
   """
 
+  require Stripe
   import Ecto.Query, warn: false
   alias NaiveDice.Repo
+  alias NaiveDice.StripePayments.ChargeInfo
   alias NaiveDice.StripePayments.Checkout
 
   @doc """
@@ -35,18 +37,34 @@ defmodule NaiveDice.StripePayments do
   end
 
   @doc """
-  Creates a stripe charge.
+  Creates a charge_info.
   """
-  def create_charge(checkout, ticket) do
-    Charge.create(%{
+  def create_charge_info!(checkout, charge_data) do
+    %ChargeInfo{}
+    |> ChargeInfo.changeset(Map.put(charge_info_attrs(charge_data), "checkout_id", checkout.id))
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Charges a checkout by calling Stripe API.
+  """
+  def charge_checkout(checkout, ticket) do
+    Stripe.Charge.create(%{
       amount: ticket.amount_pennies,
       currency: ticket.currency,
       source: checkout.token
     })
   end
 
-  @doc """
-  Calls stripe charge API.
-  """
-  def exec_stripe_charge(_stripe_charge), do: nil
+  defp charge_info_attrs(charge_data) do
+    %{
+      "charge" => extract_simple_attrs(charge_data),
+      "outcome" => extract_simple_attrs(charge_data.outcome),
+      "source" => extract_simple_attrs(charge_data.source)
+    }
+  end
+
+  defp extract_simple_attrs(map) do
+    for {key, value} <- Map.to_list(map), !is_map(value) && key != :__struct__, into: %{}, do: {Atom.to_string(key), value}
+  end
 end

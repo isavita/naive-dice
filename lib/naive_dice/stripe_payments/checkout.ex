@@ -1,6 +1,7 @@
 defmodule NaiveDice.StripePayments.Checkout do
   use Ecto.Schema
   import Ecto.Changeset
+  alias NaiveDice.User
 
   schema "checkouts" do
     field :email, :string
@@ -17,5 +18,6 @@ defmodule NaiveDice.StripePayments.Checkout do
     checkout
     |> cast(attrs, [:user_id, :email, :token, :token_type, :processed])
     |> validate_required([:user_id, :email, :token, :token_type])
+    |> unique_constraint(:token)
   end
 end
