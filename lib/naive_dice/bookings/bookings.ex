@@ -17,9 +17,9 @@ defmodule NaiveDice.Bookings do
   end
 
   @doc """
-  Gets event with the given id. 
+  Gets event if exists. 
 
-  Raises `Ecto.NoResultsError` if the event does not exists.
+  Raises `Ecto.NoResultsError` if the event does not exist.
   """
   def get_event!(event_id) do
     Repo.get!(Event, event_id) |> Repo.preload(:ticket_schema)
@@ -48,6 +48,15 @@ defmodule NaiveDice.Bookings do
     %Ticket{}
     |> Ticket.changeset(Map.merge(attrs, extra_attrs(event, ticket_schema)))
     |> Repo.insert()
+  end
+
+  @doc """
+  Updates a ticket's `paid_at` column to UTC time now.
+  """
+  def update_ticket_to_paid!(ticket) do
+    ticket
+    |> Ticket.changeset(%{"paid_at" => DateTime.utc_now(), "state" => "paid"})
+    |> Repo.update!()
   end
 
   @doc """

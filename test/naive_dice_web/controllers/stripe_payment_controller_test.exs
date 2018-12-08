@@ -40,7 +40,7 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
 
       conn |> assign(:current_user, user) |> post("/stripe_payments", params)
 
-      refute is_nil(ticket.paid_at)
+      refute is_nil(Bookings.get_ticket!(ticket.id).paid_at)
     end
   end
 

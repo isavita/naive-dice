@@ -13,7 +13,8 @@ defmodule NaiveDiceWeb.StripePaymentController do
     # start transaction
     # 2) make a call to stripe API to charge
     # 3) update ticket to paid with DateTime.utc_now()
-    StripePayments.update_to_processed!(checkout)
+    Bookings.update_ticket_to_paid!(ticket)
+    StripePayments.update_checkout_to_processed!(checkout)
     # end transaction
     # store the information from the call from step (2)
     # {:ok, customer} = create_customer(params)

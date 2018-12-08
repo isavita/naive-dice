@@ -8,7 +8,7 @@ defmodule NaiveDice.Bookings.Ticket do
   schema "tickets" do
     field :amount_pennies, :integer
     field :currency, :string
-    field :state, :string
+    field :state, :string # TODO: review the need of this field
     field :paid_at, :utc_datetime
 
     belongs_to :user, User

@@ -54,6 +54,21 @@ defmodule NaiveDice.BookingsTest do
       assert ticket == Bookings.get_user_ticket!(user, event)
     end
 
+    test "update_ticket_to_paid/1 updates `paid_at` to UTC time now" do
+      user = create_user()
+      event = create_event()
+      ticket_schema = create_ticket_schema(event)
+      ticket_attrs = Map.put(@valid_ticket_attrs, "user_id", user.id)
+      {:ok, ticket} = Bookings.create_ticket(event, ticket_schema, ticket_attrs)
+
+      assert is_nil(ticket.paid_at)
+
+      ticket = Bookings.update_ticket_to_paid!(ticket)
+
+      refute is_nil(ticket.paid_at)
+    end
+
+
     test "has_available_tickets?/1 returns true if the event has available tickets" do
       event = create_event()
       ticket_schema = create_ticket_schema(event)

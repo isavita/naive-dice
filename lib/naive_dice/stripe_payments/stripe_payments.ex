@@ -19,10 +19,19 @@ defmodule NaiveDice.StripePayments do
   @doc """
   Updates a checkout's `processed` column to `true`.
   """
-  def update_to_processed!(checkout) do
+  def update_checkout_to_processed!(checkout) do
     checkout
     |> Checkout.changeset(%{"processed" => true})
     |> Repo.update!()
+  end
+
+  @doc """
+  Gets checkout if exists.
+
+  Raises `Ecto.NoResultsError` if the event does not exist.
+  """
+  def get_checkout!(checkout_id) do
+    Repo.get!(Checkout, checkout_id)
   end
 
   @doc """
