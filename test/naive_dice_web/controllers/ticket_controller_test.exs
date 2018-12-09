@@ -2,8 +2,6 @@ defmodule NaiveDiceWeb.TicketControllerTest do
   use NaiveDiceWeb.ConnCase
   alias NaiveDice.Bookings
   alias NaiveDice.Bookings.Event
-  alias NaiveDice.Bookings.Ticket
-  alias NaiveDice.Bookings.TicketSchema
   alias NaiveDice.User
 
   @create_user_attrs %{"email" => "jane@example.com", "password" => "1234"}
@@ -15,30 +13,36 @@ defmodule NaiveDiceWeb.TicketControllerTest do
       event = create_event()
       user = create_user()
       conn = assign(conn, :current_user, user)
-      params = %{ "event_id" => event.id }
+      params = %{"event_id" => event.id}
 
       {:ok, conn: conn, params: params, event: event}
     end
 
-    test "returns an error if the event does not have available tickets", %{conn: conn, params: params, event: event} do
+    test "responds with a success message and creates a new ticket", %{conn: conn, params: params, event: event} do
+      create_ticket_schema(event)
+
+      conn = post(conn, "/tickets", params)
+
+      assert redirected_to(conn, 302) == "/events/#{event.id}"
+      assert get_flash(conn, :info)
+    end
+
+    test "returns an error if the ticket schema for the event does not have available tickets", %{conn: conn, params: params, event: event} do
       create_ticket_schema(event, Map.put(@create_ticket_schema_attrs, "available_tickets_count", 0))
 
       conn = post(conn, "/tickets", params)
 
+      assert redirected_to(conn, 302) == "/events/#{event.id}"
       assert get_flash(conn, :error)
     end
   end
 
   defp create_user(attrs \\ @create_user_attrs) do
-    %User{}
-    |> User.create_changeset(attrs)
-    |> NaiveDice.Repo.insert!()
+    %User{} |> User.create_changeset(attrs) |> NaiveDice.Repo.insert!()
   end
 
   defp create_event(attrs \\ @create_event_attrs) do
-    %Event{}
-    |> Event.changeset(attrs)
-    |> NaiveDice.Repo.insert!()
+    %Event{} |> Event.changeset(attrs) |> NaiveDice.Repo.insert!()
   end
 
   defp create_ticket_schema(event, attrs \\ @create_ticket_schema_attrs) do

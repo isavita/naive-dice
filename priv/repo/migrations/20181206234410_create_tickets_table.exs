@@ -8,7 +8,6 @@ defmodule StripeBook.Repo.Migrations.CreateTicketsTable do
       add :ticket_schema_id, references(:ticket_schemas), null: false
       add :amount_pennies, :integer
       add :currency, :string, size: 3
-      add :state, :string, default: "created"
       add :paid_at, :utc_datetime
 
       timestamps()

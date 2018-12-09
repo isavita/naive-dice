@@ -3,7 +3,6 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
   alias NaiveDice.Bookings
   alias NaiveDice.Bookings.Event
   alias NaiveDice.Bookings.Ticket
-  alias NaiveDice.Bookings.TicketSchema
   alias NaiveDice.Repo
   alias NaiveDice.StripePayments.Checkout
   alias NaiveDice.User
@@ -29,7 +28,7 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
       {:ok, user: user, params: params, ticket: ticket}
     end
 
-    test "creates a checkout", %{conn: conn, user: user, params: params} do
+    test "creates a new checkout", %{conn: conn, user: user, params: params} do
       conn = conn |> assign(:current_user, user) |> post("/stripe_payments", params)
 
       assert redirected_to(conn, 302) =~ "/events/"
@@ -46,15 +45,11 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
   end
 
   defp create_user(attrs \\ @create_user_attrs) do
-    %User{}
-    |> User.create_changeset(attrs)
-    |> Repo.insert!()
+    %User{} |> User.create_changeset(attrs) |> Repo.insert!()
   end
 
   defp create_event(attrs \\ @create_event_attrs) do
-    %Event{}
-    |> Event.changeset(attrs)
-    |> Repo.insert!()
+    %Event{} |> Event.changeset(attrs) |> Repo.insert!()
   end
 
   defp create_ticket_schema(event, attrs \\ @create_ticket_schema_attrs) do
@@ -68,11 +63,7 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
 
   defp create_ticket(event, ticket_schema, user) do
     %Ticket{}
-    |> Ticket.changeset(%{
-      "event_id" => event.id, "user_id" => user.id,
-      "ticket_schema_id" => ticket_schema.id, "amount_pennies" => ticket_schema.amount_pennies,
-      "currency" => ticket_schema.currency
-    })
+    |> Ticket.changeset(%{"event_id" => event.id, "ticket_schema_id" => ticket_schema.id, "user_id" => user.id})
     |> Repo.insert!()
   end
 

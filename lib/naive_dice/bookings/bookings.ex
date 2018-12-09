@@ -64,7 +64,7 @@ defmodule NaiveDice.Bookings do
   """
   def update_ticket_to_paid!(ticket) do
     ticket
-    |> Ticket.changeset(%{"paid_at" => DateTime.utc_now(), "state" => "paid"})
+    |> Ticket.changeset(%{"paid_at" => DateTime.utc_now()})
     |> Repo.update!()
   end
 
