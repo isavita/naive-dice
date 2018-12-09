@@ -10,6 +10,7 @@ defmodule NaiveDice.Bookings.TicketSchema do
     field :currency, :string
     field :type, :string
     field :available_tickets_count, :integer
+    field :lock_version, :integer, default: 1
 
     belongs_to :event, Event, foreign_key: :event_id
     has_many :tickets, Ticket
@@ -22,5 +23,6 @@ defmodule NaiveDice.Bookings.TicketSchema do
     ticket_schema
     |> cast(attrs, [:event_id, :amount_pennies, :currency, :type, :available_tickets_count])
     |> validate_required([:event_id, :available_tickets_count])
+    |> optimistic_lock(:lock_version)
   end
 end

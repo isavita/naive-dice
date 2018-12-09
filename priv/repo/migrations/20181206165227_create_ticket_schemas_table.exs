@@ -8,6 +8,7 @@ defmodule NaiveDice.Repo.Migrations.CreateTicketSchemasTable do
       add :currency, :string, size: 3
       add :type, :string, null: false, default: "standard"
       add :available_tickets_count, :integer, null: false
+      add :lock_version, :integer, default: 1
 
       timestamps()
     end
