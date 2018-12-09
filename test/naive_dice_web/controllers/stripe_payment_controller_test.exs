@@ -4,6 +4,7 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
   alias NaiveDice.Bookings.Event
   alias NaiveDice.Bookings.Ticket
   alias NaiveDice.Bookings.TicketSchema
+  alias NaiveDice.Repo
   alias NaiveDice.StripePayments.Checkout
   alias NaiveDice.User
 
@@ -47,13 +48,13 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
   defp create_user(attrs \\ @create_user_attrs) do
     %User{}
     |> User.create_changeset(attrs)
-    |> NaiveDice.Repo.insert!()
+    |> Repo.insert!()
   end
 
   defp create_event(attrs \\ @create_event_attrs) do
     %Event{}
     |> Event.changeset(attrs)
-    |> NaiveDice.Repo.insert!()
+    |> Repo.insert!()
   end
 
   defp create_ticket_schema(event, attrs \\ @create_ticket_schema_attrs) do
@@ -66,10 +67,13 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
   end
 
   defp create_ticket(event, ticket_schema, user) do
-    {:ok, ticket} =
-      Bookings.create_ticket(event, ticket_schema, %{"user_id" => user.id})
-
-    ticket
+    %Ticket{}
+    |> Ticket.changeset(%{
+      "event_id" => event.id, "user_id" => user.id,
+      "ticket_schema_id" => ticket_schema.id, "amount_pennies" => ticket_schema.amount_pennies,
+      "currency" => ticket_schema.currency
+    })
+    |> Repo.insert!()
   end
 
   defp get_checkout(user) do

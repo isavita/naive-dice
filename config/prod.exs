@@ -69,3 +69,6 @@ config :logger, level: :info
 # Finally import the config/prod.secret.exs which should be versioned
 # separately.
 import_config "prod.secret.exs"
+
+# Configure stripe Adapter
+config :naive_dice, :stripe_api, NaiveDice.StripeApi.HTTPClient

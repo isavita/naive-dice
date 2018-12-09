@@ -16,3 +16,6 @@ config :naive_dice, NaiveDice.Repo,
   database: "naive_dice_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# Configure stripe Adapter
+config :naive_dice, :stripe_api, NaiveDice.StripeApi.InMemory

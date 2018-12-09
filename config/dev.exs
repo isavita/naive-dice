@@ -73,3 +73,6 @@ config :naive_dice, NaiveDice.Repo,
   database: "naive_dice_dev",
   hostname: "localhost",
   pool_size: 10
+
+# Configure stripe Adapter
+config :naive_dice, :stripe_api, NaiveDice.StripeApi.HTTPClient

@@ -3,11 +3,12 @@ defmodule NaiveDice.StripePayments do
   The StripePayments context which is for Checkout and ChargeInfo repos.
   """
 
-  require Stripe
   import Ecto.Query, warn: false
   alias NaiveDice.Repo
   alias NaiveDice.StripePayments.ChargeInfo
   alias NaiveDice.StripePayments.Checkout
+
+  @stripe_api Application.get_env(:naive_dice, :stripe_api)
 
   @doc """
   Creates a checkout.
@@ -49,11 +50,7 @@ defmodule NaiveDice.StripePayments do
   Charges a checkout by calling Stripe API.
   """
   def charge_checkout(checkout, ticket) do
-    Stripe.Charge.create(%{
-      amount: ticket.amount_pennies,
-      currency: ticket.currency,
-      source: checkout.token
-    })
+    @stripe_api.create_charge(checkout.token, ticket.amount_pennies, ticket.currency)
   end
 
   defp charge_info_attrs(charge_data) do
