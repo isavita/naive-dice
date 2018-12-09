@@ -4,11 +4,27 @@ defmodule NaiveDice.StripePayments do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias NaiveDice.Repo
   alias NaiveDice.StripePayments.ChargeInfo
   alias NaiveDice.StripePayments.Checkout
 
   @stripe_api Application.get_env(:naive_dice, :stripe_api)
+
+  @doc """
+  Creates and processes checkout base of attributes recieved from stripe on handling checkout callback.
+  """
+  def process_checkout(user, ticket, attrs) do
+    Multi.new()
+    |> Multi.insert(:checkout, Checkout.changeset(%Checkout{}, stripe_checkout_attrs(user, attrs)))
+    |> call_charge_stripe_api(ticket) 
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{checkout: checkout, call_charge_stripe_api: charge_data}} ->
+        {:ok, %{checkout: checkout, charge_data: charge_data}}
+      {:error, reason} -> {:error, reason}
+    end
+  end
 
   @doc """
   Creates a checkout.
@@ -17,15 +33,6 @@ defmodule NaiveDice.StripePayments do
     %Checkout{}
     |> Checkout.changeset(attrs)
     |> Repo.insert!()
-  end
-
-  @doc """
-  Updates a checkout's `processed` column to `true`.
-  """
-  def update_checkout_to_processed!(checkout) do
-    checkout
-    |> Checkout.changeset(%{"processed" => true})
-    |> Repo.update!()
   end
 
   @doc """
@@ -46,11 +53,27 @@ defmodule NaiveDice.StripePayments do
     |> Repo.insert!()
   end
 
-  @doc """
-  Charges a checkout by calling Stripe API.
-  """
-  def charge_checkout(checkout, ticket) do
+  defp call_charge_stripe_api(multi, ticket) do
+    multi
+    |> Multi.run(:call_charge_stripe_api, fn _repo, %{checkout: checkout} ->
+      case charge_checkout(checkout, ticket) do
+        {:ok, charge_data} -> {:ok, charge_data}
+        {:error, _} -> {:error, "We couldn't process your payment! Please, try again!"}
+      end
+    end)
+  end
+
+  defp charge_checkout(checkout, ticket) do
     @stripe_api.create_charge(checkout.token, ticket.amount_pennies, ticket.currency)
+  end
+
+  defp stripe_checkout_attrs(user, attrs) do
+    %{
+      "user_id" => user.id,
+      "email" => attrs["stripeEmail"],
+      "token" => attrs["stripeToken"],
+      "token_type" => attrs["stripeTokenType"]
+    }
   end
 
   defp charge_info_attrs(charge_data) do

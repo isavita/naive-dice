@@ -7,7 +7,6 @@ defmodule NaiveDice.StripePayments.Checkout do
     field :email, :string
     field :token, :string
     field :token_type, :string
-    field :processed, :boolean
     belongs_to :user, User
 
     timestamps()
@@ -16,7 +15,7 @@ defmodule NaiveDice.StripePayments.Checkout do
   @doc false
   def changeset(checkout, attrs) do
     checkout
-    |> cast(attrs, [:user_id, :email, :token, :token_type, :processed])
+    |> cast(attrs, [:user_id, :email, :token, :token_type])
     |> validate_required([:user_id, :email, :token, :token_type])
     |> unique_constraint(:token)
   end

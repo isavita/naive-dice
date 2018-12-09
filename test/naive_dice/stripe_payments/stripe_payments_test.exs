@@ -19,18 +19,6 @@ defmodule NaiveDice.StripePaymentsTest do
     test "create_checkout!/1 raises an error when not all required attributes are provided" do
       assert_raise Ecto.InvalidChangesetError, fn -> StripePayments.create_checkout!(%{}) end
     end
-
-    test "update_checkout_to_processed!/1 updates the checkout's `processed` field to `true`" do
-      user = create_user()
-      attrs = Map.put(@valid_checkout_attrs, "user_id", user.id)
-      checkout = StripePayments.create_checkout!(attrs)
-
-      refute checkout.processed 
-
-      StripePayments.update_checkout_to_processed!(checkout)
-
-      assert StripePayments.get_checkout!(checkout.id)
-    end
   end
 
   def create_user(attrs \\ @create_user_attrs) do

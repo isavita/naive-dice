@@ -6,7 +6,6 @@ defmodule NaiveDice.Repo.Migrations.CreateCheckoutsTable do
       add :email, :string, null: false
       add :token, :string, null: false
       add :token_type, :string, null: false
-      add :processed, :boolean, null: false, default: false
       add :user_id, references(:users, on_delete: :nothing), null: false
 
       timestamps()
