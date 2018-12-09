@@ -1,0 +1,15 @@
+<li>
+  <div class="card">
+    <%= link(to: Routes.event_path(@conn, :show, @event.id)) do %>
+      <img class="card-img-top" src="<%= @event.image_url %>">
+    <% end %>
+    <div class="card-body">
+      <h5 class="card-title"><%= @event.title %></h5>
+      <%= if has_available_tickets?(@event) do %>
+        <span><%= formatted_amount(@event.ticket_schema) %></span>
+      <% else %>
+        <span class="label label-primary">SOLD OUT</span>
+      <% end %>
+    </div>
+  </div>
+</li>
