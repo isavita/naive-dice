@@ -41,7 +41,16 @@ defmodule NaiveDice.BookingsTest do
       ticket_schema = create_ticket_schema(event)
       attrs = Map.put(@valid_ticket_attrs, "user_id", user.id)
 
-      assert {:ok, %Ticket{}} = Bookings.create_ticket(event, ticket_schema, attrs)
+      assert {:ok, %Ticket{}} = Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, attrs)
+    end
+
+    test "create_ticket/3 returns an error when the ticket schema does not have available tickets" do
+      user = create_user()
+      event = create_event(Map.put(@create_event_attrs, "title", "event4"))
+      ticket_schema = create_ticket_schema(event, Map.put(@valid_ticket_schema_attrs, "available_tickets_count", 0))
+      attrs = Map.put(@valid_ticket_attrs, "user_id", user.id)
+
+      assert {:error, "No available tickets!"} = Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, attrs)
     end
 
     test "get_user_ticket!/2 gets ticket for a given user and event" do
@@ -49,7 +58,7 @@ defmodule NaiveDice.BookingsTest do
       event = create_event()
       ticket_schema = create_ticket_schema(event)
       ticket_attrs = Map.put(@valid_ticket_attrs, "user_id", user.id)
-      {:ok, ticket} = Bookings.create_ticket(event, ticket_schema, ticket_attrs)
+      {:ok, ticket} = Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, ticket_attrs)
 
       assert ticket == Bookings.get_user_ticket!(user, event)
     end
@@ -59,7 +68,7 @@ defmodule NaiveDice.BookingsTest do
       event = create_event()
       ticket_schema = create_ticket_schema(event)
       ticket_attrs = Map.put(@valid_ticket_attrs, "user_id", user.id)
-      {:ok, ticket} = Bookings.create_ticket(event, ticket_schema, ticket_attrs)
+      {:ok, ticket} = Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, ticket_attrs)
 
       assert is_nil(ticket.paid_at)
 
@@ -88,7 +97,7 @@ defmodule NaiveDice.BookingsTest do
       event = create_event()
       ticket_schema = create_ticket_schema(event)
       ticket_attrs = Map.put(@valid_ticket_attrs, "user_id", user.id)
-      ticket = Bookings.create_ticket(event, ticket_schema, ticket_attrs)
+      ticket = Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, ticket_attrs)
 
       assert Bookings.user_has_ticket?(user, event) == true
     end

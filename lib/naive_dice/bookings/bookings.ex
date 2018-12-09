@@ -4,6 +4,7 @@ defmodule NaiveDice.Bookings do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias NaiveDice.Repo
   alias NaiveDice.Bookings.Event
   alias NaiveDice.Bookings.TicketSchema
@@ -22,7 +23,7 @@ defmodule NaiveDice.Bookings do
   Raises `Ecto.NoResultsError` if the event does not exist.
   """
   def get_event!(event_id) do
-    Repo.get!(Event, event_id) |> Repo.preload(:ticket_schema)
+    Repo.get!(Event, event_id)
   end
 
   @doc """
@@ -42,12 +43,20 @@ defmodule NaiveDice.Bookings do
   end
 
   @doc """
-  Creates a ticket.
+  Creates a ticket and updates ticket schema's available tickets count.
   """
-  def create_ticket(event, ticket_schema, attrs) do
-    %Ticket{}
-    |> Ticket.changeset(Map.merge(attrs, extra_attrs(event, ticket_schema)))
-    |> Repo.insert()
+  def create_ticket_and_update_ticket_schema(event, ticket_schema, attrs) do
+    Multi.new()
+    |> valid_ticket_schema(ticket_schema)
+    |> Multi.update(:ticket_schema, decrement_available_tickets_count(ticket_schema))
+    |> Multi.insert(:ticket, create_ticket(event, ticket_schema, attrs))
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{ticket: ticket, ticket_schema: _, valid_ticket_schema: _}} ->
+        {:ok, ticket}
+      {:error, _operation, reason, _changes} ->
+        {:error, reason}
+    end
   end
 
   @doc """
@@ -93,6 +102,21 @@ defmodule NaiveDice.Bookings do
     else
       Repo.exists?(from t in Ticket, where: t.user_id == ^user.id and t.event_id == ^event.id)
     end
+  end
+
+  defp valid_ticket_schema(multi, ticket_schema) do
+    multi
+    |> Multi.run(:valid_ticket_schema, fn _repo, changes ->
+      if ticket_schema.available_tickets_count > 0, do: {:ok, changes}, else: {:error, "No available tickets!"}
+    end)
+  end
+
+  defp decrement_available_tickets_count(ticket_schema) do
+    ticket_schema |> TicketSchema.changeset(%{"available_tickets_count" => (ticket_schema.available_tickets_count - 1) })
+  end
+
+  defp create_ticket(event, ticket_schema, attrs) do
+    %Ticket{} |> Ticket.changeset(Map.merge(attrs, extra_attrs(event, ticket_schema)))
   end
 
   defp extra_attrs(event, ticket_schema) do
