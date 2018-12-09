@@ -133,6 +133,10 @@ header nav a {
   }
 }
 
-.events-list ul {
-  list-style: none;
+li {
+  list-style-type: none;
+}
+
+.card-title {
+  font-size: 20px;
 }

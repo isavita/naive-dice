@@ -1,7 +1,7 @@
 <section class="row">
   <article class="column">
     <div class="card">
-      <img class="card-img-top" src="/images/bring-me-the-horizon.jpg">
+      <img class="card-img-top" src="<%= @event.image_url %>">
       <div class="card-body">
         <h5 class="card-title"><%= @event.title %></h5>
         <p class="card-text">Description: <%= @event.description %></p>
@@ -10,9 +10,11 @@
           <%= if user_has_paid_ticket?(@current_user, @event) do %>
             <span>YOU HAVE A TICKET</span>
           <% else %>
+            <p><%= formatted_amount(@event.ticket_schema) %></p>
             <%= render(NaiveDiceWeb.EventView, "_stripe_form.html", ticket: get_user_ticket(@current_user, @event), conn: @conn) %>
           <% end %>
         <% has_available_tickets?(@event) -> %>
+          <p><%= formatted_amount(@event.ticket_schema) %></p>
           <%= button("Book Now", to: Routes.ticket_path(@conn, :create, event_id: @event.id), method: "post", class: "btn btn-primary") %>
         <% true -> %>
           <span>SOLD OUT</span>

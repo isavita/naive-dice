@@ -6,7 +6,7 @@
         <li>
             <div class="card">
               <%= link(to: Routes.event_path(@conn, :show, event.id)) do %>
-                <img class="card-img-top" src="/images/bring-me-the-horizon.jpg">
+                <img class="card-img-top" src="<%= event.image_url %>">
               <% end %>
               <div class="card-body">
                 <h5 class="card-title"><%= event.title %></h5>

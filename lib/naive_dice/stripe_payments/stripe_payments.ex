@@ -22,7 +22,8 @@ defmodule NaiveDice.StripePayments do
     |> case do
       {:ok, %{checkout: checkout, call_charge_stripe_api: charge_data}} ->
         {:ok, %{checkout: checkout, charge_data: charge_data}}
-      {:error, reason} -> {:error, reason}
+      {:error, _op, reason, _} ->
+        {:error, reason}
     end
   end
 

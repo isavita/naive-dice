@@ -19,7 +19,9 @@ defmodule NaiveDiceWeb.UserController do
       {:ok, user} ->
         conn |> redirect(to: "/")
       {:error, changeset} ->
-        conn |> render("new.html", changeset: changeset)
+        conn
+        |> put_flash(:error, "Make sure that the password does match confirmation.")
+        |> render("new.html", changeset: changeset)
     end
   end
 end

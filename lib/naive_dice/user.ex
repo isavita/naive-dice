@@ -10,6 +10,8 @@ defmodule NaiveDice.User do
     field :password, :string, virtual: true
     field :session_secret, :string
 
+    field :password_confirmation, :string, virtual: true
+
     timestamps()
   end
 
@@ -17,6 +19,8 @@ defmodule NaiveDice.User do
   def create_changeset(user, attrs \\ %{}) do
     user
     |> cast(attrs, [:email, :password])
+    |> validate_confirmation(:password)
+    |> validate_required([:email, :password])
     |> hash_password
   end
 end
