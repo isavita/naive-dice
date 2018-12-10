@@ -27,13 +27,6 @@ defmodule NaiveDice.Bookings do
   end
 
   @doc """
-  Returns all tickets for a given event.
-  """
-  def list_tickets(event_id) do
-    Repo.all(Ticket)
-  end
-
-  @doc """
   Creates a ticket schema.
   """
   def create_ticket_schema(attrs) do
@@ -62,10 +55,10 @@ defmodule NaiveDice.Bookings do
   @doc """
   Updates a ticket's `paid_at` column to UTC time now.
   """
-  def update_ticket_to_paid!(ticket) do
+  def update_ticket_to_paid(ticket) do
     ticket
     |> Ticket.changeset(%{"paid_at" => DateTime.utc_now()})
-    |> Repo.update!()
+    |> Repo.update()
   end
 
   @doc """
@@ -78,12 +71,12 @@ defmodule NaiveDice.Bookings do
   end
 
   @doc """
-  Gets ticket with the given id. 
+  Gets only ticket that it is not paid and belongs to given user. 
 
   Raises `Ecto.NoResultsError` if the ticket does not exist.
   """
-  def get_ticket!(ticket_id) do
-    Repo.get!(Ticket, ticket_id)
+  def get_user_unpaid_ticket_by_id!(user, ticket_id) do
+    Repo.one!(from t in Ticket, where: t.id == ^ticket_id and t.user_id == ^user.id and is_nil(t.paid_at))
   end
 
   @doc """

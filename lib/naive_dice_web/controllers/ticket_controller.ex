@@ -9,7 +9,7 @@ defmodule NaiveDiceWeb.TicketController do
     params = ticket_attrs(params, conn.assigns.current_user) 
 
     conn = case Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, params) do
-      {:ok, ticket} -> put_flash(conn, :info, "Successfully book a ticket!")
+      {:ok, _ticket} -> put_flash(conn, :info, "Successfully book a ticket!")
       {:error, reason} -> put_flash(conn, :error, reason)
     end
 

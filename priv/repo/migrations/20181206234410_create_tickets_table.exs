@@ -16,5 +16,6 @@ defmodule StripeBook.Repo.Migrations.CreateTicketsTable do
     create index(:tickets, [:user_id])
     create index(:tickets, [:event_id])
     create index(:tickets, [:ticket_schema_id])
+    create unique_index(:tickets, [:user_id, :event_id])
   end
 end

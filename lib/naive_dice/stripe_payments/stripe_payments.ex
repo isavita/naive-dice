@@ -5,6 +5,7 @@ defmodule NaiveDice.StripePayments do
 
   import Ecto.Query, warn: false
   alias Ecto.Multi
+  alias NaiveDice.Bookings
   alias NaiveDice.Repo
   alias NaiveDice.StripePayments.ChargeInfo
   alias NaiveDice.StripePayments.Checkout
@@ -16,6 +17,7 @@ defmodule NaiveDice.StripePayments do
   """
   def process_checkout(user, ticket, attrs) do
     Multi.new()
+    |> update_ticket_to_paid(ticket)
     |> Multi.insert(:checkout, Checkout.changeset(%Checkout{}, stripe_checkout_attrs(user, attrs)))
     |> call_charge_stripe_api(ticket) 
     |> Repo.transaction()
@@ -52,6 +54,13 @@ defmodule NaiveDice.StripePayments do
     %ChargeInfo{}
     |> ChargeInfo.changeset(Map.put(charge_info_attrs(charge_data), "checkout_id", checkout.id))
     |> Repo.insert!()
+  end
+
+  defp update_ticket_to_paid(multi, ticket) do
+    multi
+    |> Multi.run(:update_ticket_to_paid, fn _repo, _changes ->
+      Bookings.update_ticket_to_paid(ticket)
+    end)
   end
 
   defp call_charge_stripe_api(multi, ticket) do

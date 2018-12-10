@@ -40,7 +40,7 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
 
       conn |> assign(:current_user, user) |> post("/stripe_payments", params)
 
-      refute is_nil(Bookings.get_ticket!(ticket.id).paid_at)
+      refute is_nil(get_ticket(ticket.id).paid_at)
     end
   end
 
@@ -67,7 +67,6 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
     |> Repo.insert!()
   end
 
-  defp get_checkout(user) do
-    NaiveDice.Repo.get_by!(Checkout, user_id: user.id)
-  end
+  defp get_checkout(user), do: Repo.get_by!(Checkout, user_id: user.id)
+  defp get_ticket(id), do: Repo.get!(Ticket, id)
 end

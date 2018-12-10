@@ -81,13 +81,29 @@ defmodule NaiveDice.BookingsTest do
       assert Bookings.get_user_ticket!(user, event) == ticket
     end
 
+    test "get_user_unpaid_ticket_by_id!/2 gets ticket if the ticket unpaid and belongs to the user", %{event: event, user: user} do
+      ticket_schema = create_ticket_schema(event)
+      ticket = create_ticket(event, ticket_schema, user)
+
+      assert Bookings.get_user_unpaid_ticket_by_id!(user, ticket.id) == ticket
+    end
+
+    test "get_user_unpaid_ticket_by_id!/2 raises if the ticket paid", %{event: event, user: user} do
+      ticket_schema = create_ticket_schema(event)
+      ticket = create_ticket(event, ticket_schema, user, %{"paid_at" => DateTime.utc_now()})
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Bookings.get_user_unpaid_ticket_by_id!(user, ticket.id)
+      end
+    end
+
     test "update_ticket_to_paid/1 updates `paid_at` to UTC time now", %{event: event, user: user} do
       ticket_schema = create_ticket_schema(event)
       ticket = create_ticket(event, ticket_schema, user)
 
       assert is_nil(ticket.paid_at)
 
-      ticket = Bookings.update_ticket_to_paid!(ticket)
+      {:ok, ticket} = Bookings.update_ticket_to_paid(ticket)
 
       refute is_nil(ticket.paid_at)
     end
@@ -118,9 +134,9 @@ defmodule NaiveDice.BookingsTest do
     |> Repo.insert!()
   end
 
-  defp create_ticket(event, ticket_schema, user) do
+  defp create_ticket(event, ticket_schema, user, attrs \\ %{}) do
     %Ticket{}
-    |> Ticket.changeset(%{"event_id" => event.id, "ticket_schema_id" => ticket_schema.id, "user_id" => user.id})
+    |> Ticket.changeset(Map.merge(attrs, %{"event_id" => event.id, "ticket_schema_id" => ticket_schema.id, "user_id" => user.id}))
     |> Repo.insert!()
   end
 end
