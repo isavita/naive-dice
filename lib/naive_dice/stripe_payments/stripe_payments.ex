@@ -74,7 +74,9 @@ defmodule NaiveDice.StripePayments do
   end
 
   defp charge_checkout(checkout, ticket) do
-    @stripe_api.create_charge(checkout.token, ticket.amount_pennies, ticket.currency)
+    @stripe_api.create_idempotent_charge(
+      checkout.token, ticket.amount_pennies, ticket.currency, idempotency_key(ticket)
+    )
   end
 
   defp stripe_checkout_attrs(user, attrs) do
@@ -89,12 +91,15 @@ defmodule NaiveDice.StripePayments do
   defp charge_info_attrs(charge_data) do
     %{
       "charge" => extract_simple_attrs(charge_data),
-      "outcome" => extract_simple_attrs(charge_data.outcome),
-      "source" => extract_simple_attrs(charge_data.source)
+      "outcome" => extract_simple_attrs(charge_data["outcome"]),
+      "source" => extract_simple_attrs(charge_data["source"])
     }
   end
 
+  defp extract_simple_attrs(nil), do: %{}
   defp extract_simple_attrs(map) do
-    for {key, value} <- Map.to_list(map), !is_map(value) && key != :__struct__, into: %{}, do: {Atom.to_string(key), value}
+    for {key, value} <- Map.to_list(map), !is_map(value), into: %{}, do: {key, value}
   end
+
+  defp idempotency_key(ticket), do: "ticket-key#{ticket.id}"
 end

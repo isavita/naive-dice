@@ -32,13 +32,13 @@ defmodule NaiveDice.StripePaymentsTest do
     end
 
     test "create_charge_info!/2 creates a new charge info when correct attributes provided", %{checkout: checkout} do
-      charge_data = %{source: %{}, outcome: %{}}
+      charge_data = %{"source" => %{"random" => "random content"}, "outcome" => %{}}
 
       assert %ChargeInfo{} = StripePayments.create_charge_info!(checkout, charge_data)
     end
 
-    test "create_charge_info!/2 raises an error when incorrect attributes provided", %{checkout: checkout} do
-      assert_raise KeyError, fn -> StripePayments.create_charge_info!(checkout, %{}) end
+    test "create_charge_info!/2 creates a new charge info even when attributes are empty map", %{checkout: checkout} do
+      assert %ChargeInfo{} = StripePayments.create_charge_info!(checkout, %{})
     end
   end
 
