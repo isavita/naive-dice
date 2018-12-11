@@ -23,6 +23,5 @@ defmodule NaiveDice.Bookings.TicketSchema do
     ticket_schema
     |> cast(attrs, [:event_id, :amount_pennies, :currency, :type, :available_tickets_count])
     |> validate_required([:event_id, :available_tickets_count])
-    |> optimistic_lock(:lock_version)
   end
 end

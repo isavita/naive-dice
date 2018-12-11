@@ -41,11 +41,11 @@ defmodule NaiveDice.Bookings do
   def create_ticket_and_update_ticket_schema(event, ticket_schema, attrs) do
     Multi.new()
     |> valid_ticket_schema(ticket_schema)
-    |> Multi.update(:ticket_schema, decrement_available_tickets_count(ticket_schema))
+    |> decrement_available_tickets_count(ticket_schema)
     |> Multi.insert(:ticket, create_ticket(event, ticket_schema, attrs))
     |> Repo.transaction()
     |> case do
-      {:ok, %{ticket: ticket, ticket_schema: _, valid_ticket_schema: _}} ->
+      {:ok, %{ticket: ticket, decrement_available_tickets_count: _, valid_ticket_schema: _}} ->
         {:ok, ticket}
       {:error, _operation, reason, _changes} ->
         {:error, reason}
@@ -104,8 +104,16 @@ defmodule NaiveDice.Bookings do
     end)
   end
 
-  defp decrement_available_tickets_count(ticket_schema) do
-    ticket_schema |> TicketSchema.changeset(%{"available_tickets_count" => (ticket_schema.available_tickets_count - 1) })
+  defp decrement_available_tickets_count(multi, ticket_schema) do
+    multi
+    |> Multi.run(:decrement_available_tickets_count, fn _repo, changes ->
+      Repo.transaction(fn ->
+        ticket_schema_locked = Repo.one(from ts in TicketSchema, where: ts.id == ^ticket_schema.id, lock: "FOR UPDATE")
+        ticket_schema_locked
+        |> TicketSchema.changeset(%{"available_tickets_count" => (ticket_schema_locked.available_tickets_count - 1) })
+        |> Repo.update()
+      end)
+    end)
   end
 
   defp create_ticket(event, ticket_schema, attrs) do

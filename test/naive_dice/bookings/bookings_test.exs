@@ -60,14 +60,30 @@ defmodule NaiveDice.BookingsTest do
       {:ok, event: create_event(), user: create_user()}
     end
 
-    test "create_ticket/3 creates a new ticket when correct attributes provided", %{event: event, user: user} do
+    test "create_ticket_and_update_ticket_schema/3 creates a new ticket and update available tickets count when correct attributes provided", %{event: event, user: user} do
       ticket_schema = create_ticket_schema(event)
       attrs = %{"user_id" => user.id}
 
       assert {:ok, %Ticket{}} = Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, attrs)
+      assert get_ticket_schema(ticket_schema.id).available_tickets_count == (ticket_schema.available_tickets_count - 1)
     end
 
-    test "create_ticket/3 returns an error when the ticket schema for the event does not have available tickets", %{event: event, user: user} do
+    test "create_ticket_and_update_ticket_schema/3 decrements available tickets count 5 times when called 5 times with correct attributes", %{event: event} do
+      ticket_schema = create_ticket_schema(event)
+
+      [1, 2, 3, 4, 5]
+      |> Enum.map(fn index ->
+        Task.async(fn ->
+          user = create_user(Map.put(@create_user_attrs, "email", "jane#{index}@example.com"))
+          Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, %{"user_id" => user.id})
+        end)
+      end)
+      |> Enum.map(&Task.await/1)
+
+      assert get_ticket_schema(ticket_schema.id).available_tickets_count == (ticket_schema.available_tickets_count - 5)
+    end
+
+    test "create_ticket_and_update_ticket_schema/3 returns an error when the ticket schema for the event does not have available tickets", %{event: event, user: user} do
       ticket_schema = create_ticket_schema(event, Map.put(@valid_ticket_schema_attrs, "available_tickets_count", 0))
       attrs = %{"user_id" => user.id}
 
@@ -139,4 +155,6 @@ defmodule NaiveDice.BookingsTest do
     |> Ticket.changeset(Map.merge(attrs, %{"event_id" => event.id, "ticket_schema_id" => ticket_schema.id, "user_id" => user.id}))
     |> Repo.insert!()
   end
+
+  defp get_ticket_schema(id), do: Repo.get!(TicketSchema, id)
 end
