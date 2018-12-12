@@ -3,7 +3,6 @@ defmodule NaiveDice.User do
   import Ecto.Changeset
   import Doorman.Auth.Bcrypt, only: [hash_password: 1]
 
-
   schema "users" do
     field :email, :string
     field :hashed_password, :string

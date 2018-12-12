@@ -4,7 +4,6 @@ defmodule NaiveDice.Bookings.TicketSchema do
   alias NaiveDice.Bookings.Event
   alias NaiveDice.Bookings.Ticket
 
-
   schema "ticket_schemas" do
     field :amount_pennies, :integer
     field :currency, :string

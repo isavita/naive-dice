@@ -47,6 +47,7 @@ defmodule NaiveDice.Bookings do
     |> case do
       {:ok, %{ticket: ticket, decrement_available_tickets_count: _, valid_ticket_schema: _}} ->
         {:ok, ticket}
+
       {:error, _operation, reason, _changes} ->
         {:error, reason}
     end
@@ -76,14 +77,18 @@ defmodule NaiveDice.Bookings do
   Raises `Ecto.NoResultsError` if the ticket does not exist.
   """
   def get_user_unpaid_ticket_by_id!(user, ticket_id) do
-    Repo.one!(from t in Ticket, where: t.id == ^ticket_id and t.user_id == ^user.id and is_nil(t.paid_at))
+    Repo.one!(
+      from t in Ticket, where: t.id == ^ticket_id and t.user_id == ^user.id and is_nil(t.paid_at)
+    )
   end
 
   @doc """
   Returns `true` if the event has available tickets.
   """
   def has_available_tickets?(event) do
-    Repo.exists?(from ts in TicketSchema, where: ts.event_id == ^event.id and ts.available_tickets_count > 0)
+    Repo.exists?(
+      from ts in TicketSchema, where: ts.event_id == ^event.id and ts.available_tickets_count > 0
+    )
   end
 
   @doc """
@@ -91,7 +96,10 @@ defmodule NaiveDice.Bookings do
   """
   def user_has_ticket?(user, event, opts \\ []) do
     if Keyword.get(opts, :paid) do
-      Repo.exists?(from t in Ticket, where: t.user_id == ^user.id and t.event_id == ^event.id and not is_nil(t.paid_at))
+      Repo.exists?(
+        from t in Ticket,
+          where: t.user_id == ^user.id and t.event_id == ^event.id and not is_nil(t.paid_at)
+      )
     else
       Repo.exists?(from t in Ticket, where: t.user_id == ^user.id and t.event_id == ^event.id)
     end
@@ -100,7 +108,9 @@ defmodule NaiveDice.Bookings do
   defp valid_ticket_schema(multi, ticket_schema) do
     multi
     |> Multi.run(:valid_ticket_schema, fn _repo, changes ->
-      if ticket_schema.available_tickets_count > 0, do: {:ok, changes}, else: {:error, "No available tickets!"}
+      if ticket_schema.available_tickets_count > 0,
+        do: {:ok, changes},
+        else: {:error, "No available tickets!"}
     end)
   end
 
@@ -108,9 +118,13 @@ defmodule NaiveDice.Bookings do
     multi
     |> Multi.run(:decrement_available_tickets_count, fn _repo, changes ->
       Repo.transaction(fn ->
-        ticket_schema_locked = Repo.one(from ts in TicketSchema, where: ts.id == ^ticket_schema.id, lock: "FOR UPDATE")
+        ticket_schema_locked =
+          Repo.one(from ts in TicketSchema, where: ts.id == ^ticket_schema.id, lock: "FOR UPDATE")
+
         ticket_schema_locked
-        |> TicketSchema.changeset(%{"available_tickets_count" => (ticket_schema_locked.available_tickets_count - 1) })
+        |> TicketSchema.changeset(%{
+          "available_tickets_count" => ticket_schema_locked.available_tickets_count - 1
+        })
         |> Repo.update()
       end)
     end)
@@ -121,9 +135,11 @@ defmodule NaiveDice.Bookings do
   end
 
   defp extra_attrs(event, ticket_schema) do
-    %{"event_id" => event.id,
+    %{
+      "event_id" => event.id,
       "ticket_schema_id" => ticket_schema.id,
       "amount_pennies" => ticket_schema.amount_pennies,
-      "currency" => ticket_schema.currency}
+      "currency" => ticket_schema.currency
+    }
   end
 end

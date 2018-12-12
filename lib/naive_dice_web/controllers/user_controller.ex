@@ -18,6 +18,7 @@ defmodule NaiveDiceWeb.UserController do
     case Repo.insert(changeset) do
       {:ok, user} ->
         conn |> redirect(to: "/")
+
       {:error, changeset} ->
         conn
         |> put_flash(:error, "Make sure that the password does match confirmation.")

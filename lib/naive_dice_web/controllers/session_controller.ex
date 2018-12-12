@@ -9,7 +9,8 @@ defmodule NaiveDiceWeb.SessionController do
   def create(conn, %{"session" => %{"email" => email, "password" => password}}) do
     if user = Doorman.authenticate(email, password) do
       conn
-      |> login(user) # Sets :user_id and :session_secret on conn's session
+      # Sets :user_id and :session_secret on conn's session
+      |> login(user)
       |> put_flash(:notice, "Successfully logged in")
       |> redirect(to: "/")
     else

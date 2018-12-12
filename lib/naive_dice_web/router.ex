@@ -18,7 +18,6 @@ defmodule NaiveDiceWeb.Router do
     plug :accepts, ["json"]
   end
 
-
   scope "/", NaiveDiceWeb do
     pipe_through :browser
 
@@ -29,7 +28,7 @@ defmodule NaiveDiceWeb.Router do
 
   scope "/", NaiveDiceWeb do
     pipe_through [:browser, :authentication]
-  
+
     get "/", EventController, :index
     resources "events", EventController, only: [:index, :show]
     resources "tickets", TicketController, only: [:create]

@@ -8,8 +8,16 @@ defmodule NaiveDice.BookingsTest do
   alias NaiveDice.Repo
 
   @create_user_attrs %{"email" => "jane@example.com", "password" => "1234"}
-  @create_event_attrs %{"title" => "event1", "description" => "Great event!", "starts_at" => DateTime.utc_now()}
-  @valid_ticket_schema_attrs %{"amount_pennies" => 999, "currency" => "gbp", "available_tickets_count" => 10}
+  @create_event_attrs %{
+    "title" => "event1",
+    "description" => "Great event!",
+    "starts_at" => DateTime.utc_now()
+  }
+  @valid_ticket_schema_attrs %{
+    "amount_pennies" => 999,
+    "currency" => "gbp",
+    "available_tickets_count" => 10
+  }
 
   describe "events" do
     setup do
@@ -32,7 +40,9 @@ defmodule NaiveDice.BookingsTest do
       {:ok, event: create_event()}
     end
 
-    test "create_ticket_schema/1 creates a new ticket schema when correct attributes provided", %{event: event} do
+    test "create_ticket_schema/1 creates a new ticket schema when correct attributes provided", %{
+      event: event
+    } do
       attrs = Map.put(@valid_ticket_schema_attrs, "event_id", event.id)
 
       assert {:ok, %TicketSchema{}} = Bookings.create_ticket_schema(attrs)
@@ -42,14 +52,19 @@ defmodule NaiveDice.BookingsTest do
       assert {:error, _} = Bookings.create_ticket_schema(%{})
     end
 
-    test "has_available_tickets?/1 returns true if the ticket schema for the event has available tickets", %{event: event} do
+    test "has_available_tickets?/1 returns true if the ticket schema for the event has available tickets",
+         %{event: event} do
       create_ticket_schema(event)
 
       assert Bookings.has_available_tickets?(event)
     end
 
-    test "has_available_tickets?/1 returns false if the ticket schema for the event does not have available tickets", %{event: event} do
-      create_ticket_schema(event, Map.put(@valid_ticket_schema_attrs, "available_tickets_count", 0))
+    test "has_available_tickets?/1 returns false if the ticket schema for the event does not have available tickets",
+         %{event: event} do
+      create_ticket_schema(
+        event,
+        Map.put(@valid_ticket_schema_attrs, "available_tickets_count", 0)
+      )
 
       refute Bookings.has_available_tickets?(event)
     end
@@ -60,34 +75,50 @@ defmodule NaiveDice.BookingsTest do
       {:ok, event: create_event(), user: create_user()}
     end
 
-    test "create_ticket_and_update_ticket_schema/3 creates a new ticket and update available tickets count when correct attributes provided", %{event: event, user: user} do
+    test "create_ticket_and_update_ticket_schema/3 creates a new ticket and update available tickets count when correct attributes provided",
+         %{event: event, user: user} do
       ticket_schema = create_ticket_schema(event)
       attrs = %{"user_id" => user.id}
 
-      assert {:ok, %Ticket{}} = Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, attrs)
-      assert get_ticket_schema(ticket_schema.id).available_tickets_count == (ticket_schema.available_tickets_count - 1)
+      assert {:ok, %Ticket{}} =
+               Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, attrs)
+
+      assert get_ticket_schema(ticket_schema.id).available_tickets_count ==
+               ticket_schema.available_tickets_count - 1
     end
 
-    test "create_ticket_and_update_ticket_schema/3 decrements available tickets count 5 times when called 5 times with correct attributes", %{event: event} do
+    test "create_ticket_and_update_ticket_schema/3 decrements available tickets count 5 times when called 5 times with correct attributes",
+         %{event: event} do
       ticket_schema = create_ticket_schema(event)
 
       [1, 2, 3, 4, 5]
       |> Enum.map(fn index ->
         Task.async(fn ->
           user = create_user(Map.put(@create_user_attrs, "email", "jane#{index}@example.com"))
-          Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, %{"user_id" => user.id})
+
+          Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, %{
+            "user_id" => user.id
+          })
         end)
       end)
       |> Enum.map(&Task.await/1)
 
-      assert get_ticket_schema(ticket_schema.id).available_tickets_count == (ticket_schema.available_tickets_count - 5)
+      assert get_ticket_schema(ticket_schema.id).available_tickets_count ==
+               ticket_schema.available_tickets_count - 5
     end
 
-    test "create_ticket_and_update_ticket_schema/3 returns an error when the ticket schema for the event does not have available tickets", %{event: event, user: user} do
-      ticket_schema = create_ticket_schema(event, Map.put(@valid_ticket_schema_attrs, "available_tickets_count", 0))
+    test "create_ticket_and_update_ticket_schema/3 returns an error when the ticket schema for the event does not have available tickets",
+         %{event: event, user: user} do
+      ticket_schema =
+        create_ticket_schema(
+          event,
+          Map.put(@valid_ticket_schema_attrs, "available_tickets_count", 0)
+        )
+
       attrs = %{"user_id" => user.id}
 
-      assert {:error, "No available tickets!"} = Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, attrs)
+      assert {:error, "No available tickets!"} =
+               Bookings.create_ticket_and_update_ticket_schema(event, ticket_schema, attrs)
     end
 
     test "get_user_ticket!/2 gets ticket for a given user and event", %{event: event, user: user} do
@@ -97,7 +128,8 @@ defmodule NaiveDice.BookingsTest do
       assert Bookings.get_user_ticket!(user, event) == ticket
     end
 
-    test "get_user_unpaid_ticket_by_id!/2 gets ticket if the ticket unpaid and belongs to the user", %{event: event, user: user} do
+    test "get_user_unpaid_ticket_by_id!/2 gets ticket if the ticket unpaid and belongs to the user",
+         %{event: event, user: user} do
       ticket_schema = create_ticket_schema(event)
       ticket = create_ticket(event, ticket_schema, user)
 
@@ -124,14 +156,20 @@ defmodule NaiveDice.BookingsTest do
       refute is_nil(ticket.paid_at)
     end
 
-    test "user_has_ticket?/2 returns true if the user has ticket for the event", %{event: event, user: user} do
+    test "user_has_ticket?/2 returns true if the user has ticket for the event", %{
+      event: event,
+      user: user
+    } do
       ticket_schema = create_ticket_schema(event)
       create_ticket(event, ticket_schema, user)
 
       assert Bookings.user_has_ticket?(user, event)
     end
 
-    test "user_has_ticket?/2 returns false if the user does not have ticket for the event", %{event: event, user: user} do
+    test "user_has_ticket?/2 returns false if the user does not have ticket for the event", %{
+      event: event,
+      user: user
+    } do
       refute Bookings.user_has_ticket?(user, event)
     end
   end
@@ -152,7 +190,13 @@ defmodule NaiveDice.BookingsTest do
 
   defp create_ticket(event, ticket_schema, user, attrs \\ %{}) do
     %Ticket{}
-    |> Ticket.changeset(Map.merge(attrs, %{"event_id" => event.id, "ticket_schema_id" => ticket_schema.id, "user_id" => user.id}))
+    |> Ticket.changeset(
+      Map.merge(attrs, %{
+        "event_id" => event.id,
+        "ticket_schema_id" => ticket_schema.id,
+        "user_id" => user.id
+      })
+    )
     |> Repo.insert!()
   end
 

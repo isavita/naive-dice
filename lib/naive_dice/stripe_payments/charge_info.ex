@@ -3,7 +3,6 @@ defmodule NaiveDice.StripePayments.ChargeInfo do
   import Ecto.Changeset
   alias NaiveDice.StripePayments.Checkout
 
-
   schema "charge_infos" do
     field :charge, :map
     field :outcome, :map
