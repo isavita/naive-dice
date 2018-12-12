@@ -18,12 +18,16 @@ defmodule NaiveDice.StripePayments do
   def process_checkout(user, ticket, attrs) do
     Multi.new()
     |> update_ticket_to_paid(ticket)
-    |> Multi.insert(:checkout, Checkout.changeset(%Checkout{}, stripe_checkout_attrs(user, attrs)))
-    |> call_charge_stripe_api(ticket) 
+    |> Multi.insert(
+      :checkout,
+      Checkout.changeset(%Checkout{}, stripe_checkout_attrs(user, attrs))
+    )
+    |> call_charge_stripe_api(ticket)
     |> Repo.transaction()
     |> case do
       {:ok, %{checkout: checkout, call_charge_stripe_api: charge_data}} ->
         {:ok, %{checkout: checkout, charge_data: charge_data}}
+
       {:error, _op, reason, _} ->
         {:error, reason}
     end
@@ -75,7 +79,10 @@ defmodule NaiveDice.StripePayments do
 
   defp charge_checkout(checkout, ticket) do
     @stripe_api.create_idempotent_charge(
-      checkout.token, ticket.amount_pennies, ticket.currency, idempotency_key(ticket)
+      checkout.token,
+      ticket.amount_pennies,
+      ticket.currency,
+      idempotency_key(ticket)
     )
   end
 
@@ -97,6 +104,7 @@ defmodule NaiveDice.StripePayments do
   end
 
   defp extract_simple_attrs(nil), do: %{}
+
   defp extract_simple_attrs(map) do
     for {key, value} <- Map.to_list(map), !is_map(value), into: %{}, do: {key, value}
   end

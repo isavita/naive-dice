@@ -6,7 +6,11 @@ defmodule NaiveDiceWeb.TicketControllerTest do
 
   @create_user_attrs %{"email" => "jane@example.com", "password" => "1234"}
   @create_event_attrs %{"title" => "event1"}
-  @create_ticket_schema_attrs %{"amount_pennies" => 999, "currency" => "gbp", "available_tickets_count" => 10}
+  @create_ticket_schema_attrs %{
+    "amount_pennies" => 999,
+    "currency" => "gbp",
+    "available_tickets_count" => 10
+  }
 
   describe "create/2" do
     setup %{conn: conn} do
@@ -18,7 +22,11 @@ defmodule NaiveDiceWeb.TicketControllerTest do
       {:ok, conn: conn, params: params, event: event}
     end
 
-    test "responds with a success message and creates a new ticket", %{conn: conn, params: params, event: event} do
+    test "responds with a success message and creates a new ticket", %{
+      conn: conn,
+      params: params,
+      event: event
+    } do
       create_ticket_schema(event)
 
       conn = post(conn, "/tickets", params)
@@ -27,8 +35,15 @@ defmodule NaiveDiceWeb.TicketControllerTest do
       assert get_flash(conn, :info)
     end
 
-    test "returns an error if the ticket schema for the event does not have available tickets", %{conn: conn, params: params, event: event} do
-      create_ticket_schema(event, Map.put(@create_ticket_schema_attrs, "available_tickets_count", 0))
+    test "returns an error if the ticket schema for the event does not have available tickets", %{
+      conn: conn,
+      params: params,
+      event: event
+    } do
+      create_ticket_schema(
+        event,
+        Map.put(@create_ticket_schema_attrs, "available_tickets_count", 0)
+      )
 
       conn = post(conn, "/tickets", params)
 

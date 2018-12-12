@@ -9,12 +9,20 @@ defmodule NaiveDice.StripePaymentsTest do
   describe "checkouts" do
     setup do
       user = create_user(%{"email" => "jane@example.com", "password" => "1234"})
-      checkout_attrs = %{"email" => "jane@example.com", "token" => "abc123", "token_type" => "type1", "user_id" => user.id}
+
+      checkout_attrs = %{
+        "email" => "jane@example.com",
+        "token" => "abc123",
+        "token_type" => "type1",
+        "user_id" => user.id
+      }
 
       {:ok, checkout_attrs: checkout_attrs}
     end
 
-    test "create_checkout!/1 creates a new checkout when correct attributes provided", %{checkout_attrs: checkout_attrs} do
+    test "create_checkout!/1 creates a new checkout when correct attributes provided", %{
+      checkout_attrs: checkout_attrs
+    } do
       assert %Checkout{} = StripePayments.create_checkout!(checkout_attrs)
     end
 
@@ -26,18 +34,28 @@ defmodule NaiveDice.StripePaymentsTest do
   describe "charge info" do
     setup do
       user = create_user(%{"email" => "jane@example.com", "password" => "1234"})
-      checkout_attrs = %{"email" => "jane@example.com", "token" => "abc123", "token_type" => "type1", "user_id" => user.id}
+
+      checkout_attrs = %{
+        "email" => "jane@example.com",
+        "token" => "abc123",
+        "token_type" => "type1",
+        "user_id" => user.id
+      }
 
       {:ok, checkout: create_checkout(checkout_attrs)}
     end
 
-    test "create_charge_info!/2 creates a new charge info when correct attributes provided", %{checkout: checkout} do
+    test "create_charge_info!/2 creates a new charge info when correct attributes provided", %{
+      checkout: checkout
+    } do
       charge_data = %{"source" => %{"random" => "random content"}, "outcome" => %{}}
 
       assert %ChargeInfo{} = StripePayments.create_charge_info!(checkout, charge_data)
     end
 
-    test "create_charge_info!/2 creates a new charge info even when attributes are empty map", %{checkout: checkout} do
+    test "create_charge_info!/2 creates a new charge info even when attributes are empty map", %{
+      checkout: checkout
+    } do
       assert %ChargeInfo{} = StripePayments.create_charge_info!(checkout, %{})
     end
   end

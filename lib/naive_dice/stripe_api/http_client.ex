@@ -6,7 +6,10 @@ defmodule NaiveDice.StripeApi.HTTPClient do
   def create_idempotent_charge(source_token, amount, currency, idempotency_key) do
     Stripe.API.request(
       %{source: source_token, amount: amount, currency: currency},
-      :post, @charge_endpoint, %{"Idempotency-Key" => idempotency_key}, connect_account: account().id
+      :post,
+      @charge_endpoint,
+      %{"Idempotency-Key" => idempotency_key},
+      connect_account: account().id
     )
   end
 

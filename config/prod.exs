@@ -12,7 +12,7 @@ use Mix.Config
 config :naive_dice, NaiveDiceWeb.Endpoint,
   http: [:inet6, port: System.get_env("PORT") || 4000],
   url: [scheme: "https", host: "https://naive-dice.herokuapp.com", port: 443],
-        force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  force_ssl: [rewrite_on: [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 

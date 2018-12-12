@@ -9,14 +9,18 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
 
   @create_user_attrs %{"email" => "jane@example.com", "password" => "1234"}
   @create_event_attrs %{"title" => "event1"}
-  @create_ticket_schema_attrs %{"amount_pennies" => 999, "currency" => "gbp", "available_tickets_count" => 10}
+  @create_ticket_schema_attrs %{
+    "amount_pennies" => 999,
+    "currency" => "gbp",
+    "available_tickets_count" => 10
+  }
 
   describe "create/2" do
     setup do
       user = create_user()
       event = create_event()
       ticket_schema = create_ticket_schema(event)
-      ticket = create_ticket(event, ticket_schema, user) 
+      ticket = create_ticket(event, ticket_schema, user)
 
       params = %{
         "stripeEmail" => user.email,
@@ -35,7 +39,12 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
       refute is_nil(get_checkout(user))
     end
 
-    test "updates the ticket's paid_at to UTC time now", %{conn: conn, user: user, params: params, ticket: ticket} do
+    test "updates the ticket's paid_at to UTC time now", %{
+      conn: conn,
+      user: user,
+      params: params,
+      ticket: ticket
+    } do
       assert is_nil(ticket.paid_at)
 
       conn |> assign(:current_user, user) |> post("/stripe_payments", params)
@@ -63,7 +72,11 @@ defmodule NaiveDiceWeb.StripePaymentControllerTest do
 
   defp create_ticket(event, ticket_schema, user) do
     %Ticket{}
-    |> Ticket.changeset(%{"event_id" => event.id, "ticket_schema_id" => ticket_schema.id, "user_id" => user.id})
+    |> Ticket.changeset(%{
+      "event_id" => event.id,
+      "ticket_schema_id" => ticket_schema.id,
+      "user_id" => user.id
+    })
     |> Repo.insert!()
   end
 
