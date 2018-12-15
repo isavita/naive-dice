@@ -3,6 +3,15 @@ defmodule NaiveDice.Bookings.TicketSchema do
   import Ecto.Changeset
   alias NaiveDice.Bookings.Event
   alias NaiveDice.Bookings.Ticket
+  alias __MODULE__
+
+  @type t :: %TicketSchema{
+          amount_pennies: pos_integer(),
+          currency: String.t(),
+          type: String.t(),
+          available_tickets_count: non_neg_integer(),
+          event_id: pos_integer()
+        }
 
   schema "ticket_schemas" do
     field :amount_pennies, :integer

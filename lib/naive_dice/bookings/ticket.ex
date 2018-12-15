@@ -4,6 +4,16 @@ defmodule NaiveDice.Bookings.Ticket do
   alias NaiveDice.User
   alias NaiveDice.Bookings.Event
   alias NaiveDice.Bookings.TicketSchema
+  alias __MODULE__
+
+  @type t :: %Ticket{
+          amount_pennies: integer(),
+          currency: String.t(),
+          paid_at: String.t(),
+          user_id: integer(),
+          event_id: integer(),
+          ticket_schema_id: integer()
+        }
 
   schema "tickets" do
     field :amount_pennies, :integer

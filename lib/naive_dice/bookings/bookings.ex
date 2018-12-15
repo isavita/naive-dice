@@ -13,6 +13,7 @@ defmodule NaiveDice.Bookings do
   @doc """
   Returns all events in the system.
   """
+  @spec list_events(non_neg_integer()) :: list(Event.t())
   def list_events(limit \\ 10) do
     Repo.all(from e in Event, limit: ^limit, preload: [:ticket_schema])
   end
@@ -22,6 +23,7 @@ defmodule NaiveDice.Bookings do
 
   Raises `Ecto.NoResultsError` if the event does not exist.
   """
+  @spec get_event!(pos_integer()) :: Event.t()
   def get_event!(event_id) do
     Repo.get!(Event, event_id)
   end
@@ -29,6 +31,7 @@ defmodule NaiveDice.Bookings do
   @doc """
   Creates a ticket schema.
   """
+  @spec create_ticket_schema(map) :: TicketSchema.t()
   def create_ticket_schema(attrs) do
     %TicketSchema{}
     |> TicketSchema.changeset(attrs)
@@ -56,6 +59,7 @@ defmodule NaiveDice.Bookings do
   @doc """
   Updates a ticket's `paid_at` column to UTC time now.
   """
+  @spec update_ticket_to_paid(Ticket.t()) :: Ticket.t()
   def update_ticket_to_paid(ticket) do
     ticket
     |> Ticket.changeset(%{"paid_at" => DateTime.utc_now()})
@@ -67,6 +71,7 @@ defmodule NaiveDice.Bookings do
 
   Gets nil if a ticket for a given user and event does not exist.
   """
+  @spec get_user_ticket!(User.t(), Event.t()) :: Ticket.t()
   def get_user_ticket!(user, event) do
     Repo.get_by!(Ticket, user_id: user.id, event_id: event.id)
   end
@@ -76,6 +81,7 @@ defmodule NaiveDice.Bookings do
 
   Raises `Ecto.NoResultsError` if the ticket does not exist.
   """
+  @spec get_user_unpaid_ticket_by_id!(User.t(), pos_integer()) :: Ticket.t()
   def get_user_unpaid_ticket_by_id!(user, ticket_id) do
     Repo.one!(
       from t in Ticket, where: t.id == ^ticket_id and t.user_id == ^user.id and is_nil(t.paid_at)
@@ -85,6 +91,7 @@ defmodule NaiveDice.Bookings do
   @doc """
   Returns `true` if the event has available tickets.
   """
+  @spec has_available_tickets?(Event.t()) :: boolean()
   def has_available_tickets?(event) do
     Repo.exists?(
       from ts in TicketSchema, where: ts.event_id == ^event.id and ts.available_tickets_count > 0
@@ -94,6 +101,7 @@ defmodule NaiveDice.Bookings do
   @doc """
   Returns `true` if an user has ticket for an event.
   """
+  @spec user_has_ticket?(User.t(), Event.t(), list) :: boolean()
   def user_has_ticket?(user, event, opts \\ []) do
     if Keyword.get(opts, :paid) do
       Repo.exists?(

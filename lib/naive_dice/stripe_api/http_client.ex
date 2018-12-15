@@ -3,6 +3,8 @@ defmodule NaiveDice.StripeApi.HTTPClient do
 
   @charge_endpoint "charges"
 
+  @spec create_idempotent_charge(String.t(), integer(), String.t(), String.t()) ::
+          {:ok, map()} | {:error, any()}
   def create_idempotent_charge(source_token, amount, currency, idempotency_key) do
     Stripe.API.request(
       %{source: source_token, amount: amount, currency: currency},
@@ -14,7 +16,9 @@ defmodule NaiveDice.StripeApi.HTTPClient do
   end
 
   defp account do
-    {:ok, account} = Stripe.Account.retrieve()
-    account
+    case Stripe.Account.retrieve() do
+      {:ok, account} -> account
+      {:error, reason} -> raise "cannot connect to Stripe API account"
+    end
   end
 end

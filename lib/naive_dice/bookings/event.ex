@@ -3,6 +3,15 @@ defmodule NaiveDice.Bookings.Event do
   import Ecto.Changeset
   alias NaiveDice.Bookings.Ticket
   alias NaiveDice.Bookings.TicketSchema
+  alias __MODULE__
+
+  @type t :: %Event{
+          title: String.t(),
+          description: String.t(),
+          image_url: String.t(),
+          starts_at: String.t(),
+          ends_at: String.t()
+        }
 
   schema "events" do
     field :title, :string

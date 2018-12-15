@@ -15,6 +15,7 @@ defmodule NaiveDice.StripePayments do
   @doc """
   Creates and processes checkout base of attributes recieved from stripe on handling checkout callback.
   """
+  @spec process_checkout(User.t(), Ticket.t(), map) :: {:ok, any} | {:error, any}
   def process_checkout(user, ticket, attrs) do
     Multi.new()
     |> update_ticket_to_paid(ticket)
@@ -36,6 +37,7 @@ defmodule NaiveDice.StripePayments do
   @doc """
   Creates a checkout.
   """
+  @spec create_checkout!(map) :: Checkout.t()
   def create_checkout!(attrs) do
     %Checkout{}
     |> Checkout.changeset(attrs)
@@ -47,6 +49,7 @@ defmodule NaiveDice.StripePayments do
 
   Raises `Ecto.NoResultsError` if the event does not exist.
   """
+  @spec get_checkout!(pos_integer()) :: Checkout.t()
   def get_checkout!(checkout_id) do
     Repo.get!(Checkout, checkout_id)
   end
@@ -54,6 +57,7 @@ defmodule NaiveDice.StripePayments do
   @doc """
   Creates a charge_info.
   """
+  @spec create_charge_info!(Checkout.t(), map) :: ChargeInfo.t()
   def create_charge_info!(checkout, charge_data) do
     %ChargeInfo{}
     |> ChargeInfo.changeset(Map.put(charge_info_attrs(charge_data), "checkout_id", checkout.id))

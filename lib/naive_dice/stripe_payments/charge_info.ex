@@ -2,6 +2,14 @@ defmodule NaiveDice.StripePayments.ChargeInfo do
   use Ecto.Schema
   import Ecto.Changeset
   alias NaiveDice.StripePayments.Checkout
+  alias __MODULE__
+
+  @type t :: %ChargeInfo{
+          charge: map(),
+          outcome: map(),
+          source: map(),
+          checkout_id: pos_integer()
+        }
 
   schema "charge_infos" do
     field :charge, :map
