@@ -43,7 +43,7 @@ defmodule NaiveDice.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:stripity_stripe, "~> 2.2.1"},
+      {:stripity_stripe, "~> 2.7.1"},
       {:doorman, "~> 0.6.1"},
       {:dialyxir, "~> 0.4", only: :dev}
     ]
